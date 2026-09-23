@@ -1,0 +1,364 @@
+<!-- Food Order and Bill Generator -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Order</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 700px;
+            min-height: 500px;
+            padding: 25px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 0 10px;
+            border-radius: 10px;
+        }
+
+        .main-heading {
+            width: 100%;
+            min-height: 80px;
+            padding: 15px;
+            background-color: rgb(179, 6, 6);
+            color: white;
+            text-align: center;
+            box-shadow: 0 0 10px rgb(179, 6, 6);
+            border-radius: 10px;
+        }
+
+        .main-heading h2 {
+            margin-bottom: 8px;
+        }
+
+        .Order-details {
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 0 10px;
+            border-radius: 10px;
+        }
+
+        .details-head {
+            color: rgb(179, 6, 6);
+            margin-bottom: 15px;
+        }
+
+        .details-label {
+            display: flex;
+            align-items: end;
+            gap: 20px;
+        }
+
+        .details-label div {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select,
+        input {
+            height: 35px;
+            padding: 5px 8px;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+
+        select {
+            width: 180px;
+        }
+
+        input {
+            width: 200px;
+        }
+
+        button {
+            height: 35px;
+            padding: 0 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgb(179, 6, 6);
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: rgb(140, 4, 4);
+        }
+
+        .bill-details {
+            width: 100%;
+        }
+
+        .bill-details h2 {
+            color: rgb(179, 6, 6);
+            margin-bottom: 15px;
+        }
+
+        .order-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: rgb(179, 6, 6);
+            color: white;
+        }
+
+        .bill {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .blank-div {
+            height: 100px;
+            width: 470px;
+        }
+
+        .discount-input {
+            width: 50px;
+            height: 25px;
+        }
+
+        .sub-total {
+            margin-top: 5px;
+        }
+
+        .discount-percentage {
+            margin-top: 5px;
+        }
+
+        .discount-price {
+            margin-top: 5px;
+        }
+
+        .final-amount {
+            margin-top: 5px;
+        }
+
+        .reset-order-button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="main-heading">
+            <h2>Food Order & Bill Generator</h2>
+            <p>Order food and generate your bill</p>
+        </div>
+
+
+        <div class="Order-details">
+            <h3 class="details-head">Place Your Order</h3>
+            <div class="details-label">
+                <div>
+                    <label for="foodName">Food Name</label>
+                    <select id="foodName">
+                        <option value="">Select Food</option>
+                        <option value="Momos">Momos</option>
+                        <option value="Chowmin">Chowmin</option>
+                        <option value="Chicken Chilli">Chicken Chilli</option>
+                        <option value="Shahi Paneer">Shahi Paneer</option>
+                        <option value="Egg Roll">Egg Roll</option>
+                        <option value="Biryani">Biryani</option>
+                        <option value="Shahi Plate">Shahi Plate</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" min="1">
+                </div>
+                <div>
+                    <button id="addItem">Add Item</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bill-details">
+            <h2>Order Summary</h2>
+            <div class="order-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Food Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderList">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="bill">
+            <div class="blank-div"> </div>
+            <div class="billing-total">
+                <div class="subtotal">
+                    <span>Subtotal</span>
+                    <span id="total-amount">₹0</span>
+                </div>
+                <div class="discount-percentage">
+                    <label>Discount %</label>
+                    <input type="number" class="discount-input">
+                </div>
+                <div class="discount-price">
+                    <span>Discount</span>
+                    <span id="discounted-amount">₹0</span>
+                </div>
+                <div class="final-amount">
+                    <span>Final Amount</span>
+                    <span id="finalAmount">₹0</span>
+                </div>
+                <button onclick="resetOrder()" class="reset-order-button">Reset Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const priceOfFood = {
+           Momos : 80,
+           Chowmin : 70,
+           "Chicken Chilli" : 120,
+           "Shahi Paneer" : 150,
+           "Egg Roll" : 50,
+           Biryani : 220,
+           "Shahi Plate" : 1500, 
+
+        };
+
+        let orders = [];
+
+        const foodName = document.getElementById("foodName");
+        const quantity = document.getElementById("quantity");
+        const addItem = document.getElementById("addItem");
+        const orderList = document.getElementById("orderList");
+
+        addItem.addEventListener("click", function() {
+            const selectedFood = foodName.value;
+            const selectedQuantity = Number(quantity.value);
+            
+            if (selectedFood === ""){
+                alert ("Please select the food");
+                return;
+            }
+
+            else if(selectedQuantity <= 0  ){
+                alert ("Please enter the quantity");
+                return;
+            }
+
+            const price = priceOfFood[selectedFood];
+            const amount = price * selectedQuantity;
+
+            const order = {
+                food : selectedFood,
+                price : price,
+                quantity : selectedQuantity,
+                amount : amount,
+            }
+
+            orders.push(order);
+            displayOrders();
+            
+            foodName.value = "";
+            quantity.value = "";
+        });
+
+        function displayOrders(){
+            orderList.innerHTML = "";
+
+            orders.forEach(function (order , index){
+                const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${order.food}</td>
+                    <td>₹${order.price}</td>
+                    <td>${order.quantity}</td>
+                    <td>₹${order.amount}</td>
+                    <td><button onclick="remove(${index})">Delete</button></td>
+                </tr>`;
+
+                orderList.innerHTML += row;
+            });
+            calculateBill();
+        };
+
+        function remove(index){
+            orders.splice(index , 1);
+            displayOrders()
+        };
+
+        const totalAmount = document.getElementById("total-amount");
+        const discountInput = document.querySelector(".discount-input");
+        const discountedAmount = document.getElementById("discounted-amount");
+        const finalAmount = document.getElementById("finalAmount");
+
+        discountInput.addEventListener("input", calculateBill);
+
+        function calculateBill(){
+        let subtotal = 0;
+        orders.forEach(function(order){
+            subtotal += order.amount;
+        });
+
+        const discountPercentage = Number(discountInput.value) || 0 ;
+        const discount = (subtotal * discountPercentage) / 100;
+        const final = subtotal - discount;
+
+        totalAmount.textContent = `₹${subtotal}`;
+        discountedAmount.textContent = `₹${discount}`;
+        finalAmount.textContent = `₹${final}`
+        };
+
+        function resetOrder(){
+            
+            orders = [];
+            
+            foodName.value = "";
+            quantity.value = "";
+            discountInput.value = "";
+
+            displayOrders();
+        }        
+    </script>
+</body>
+</html>
