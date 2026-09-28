@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Modern Food Order and Bill Generator built with HTML, CSS and JavaScript">
+<title>Food Order & Bill Generator</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --primary: #b30606;
+        --primary-dark: #850404;
+        --accent: #ffb703;
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --success: #15803d;
+        --danger: #dc2626;
+    }
+
+    body {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f9fb, #eef1f5);
+        font-family: Arial, sans-serif;
+        color: var(--text);
+        padding: 30px 15px;
+    }
+
+    .container {
+        width: min(1050px, 100%);
+        margin: auto;
+        background: var(--card);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 45px rgba(0,0,0,.10);
+    }
+
+    .main-heading {
+        padding: 28px 30px;
+        color: white;
+        background: linear-gradient(135deg, var(--primary), #e21b1b);
+        position: relative;
+    }
+
+    .main-heading h1 {
+        font-size: clamp(24px, 4vw, 34px);
+        margin-bottom: 6px;
+    }
+
+    .main-heading p {
+        opacity: .9;
+    }
+
+    .order-badge {
+        position: absolute;
+        right: 28px;
+        top: 28px;
+        background: rgba(255,255,255,.16);
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+    }
+
+    .content {
+        padding: 25px;
+    }
+
+    .section {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 22px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .section-title h2 {
+        color: var(--primary);
+        font-size: 20px;
+    }
+
+    .section-title span {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1.4fr .7fr auto;
+        gap: 15px;
+        align-items: end;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    label {
+        font-size: 13px;
+        font-weight: bold;
+        color: #374151;
+    }
+
+    select, input {
+        width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+        outline: none;
+        background: white;
+        font-size: 14px;
+        transition: .2s;
+    }
+
+    select:focus, input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(179,6,6,.10);
+    }
+
+    button {
+        border: none;
+        border-radius: 9px;
+        min-height: 42px;
+        padding: 0 17px;
+        background: var(--primary);
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        transition: .2s;
+    }
+
+    button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    button:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .secondary-btn {
+        background: #374151;
+    }
+
+    .secondary-btn:hover {
+        background: #1f2937;
+    }
+
+    .success-btn {
+        background: var(--success);
+    }
+
+    .danger-btn {
+        background: var(--danger);
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+    }
+
+    table {
+        width: 100%;
+        min-width: 700px;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 13px 10px;
+        border-bottom: 1px solid var(--border);
+        text-align: center;
+        font-size: 14px;
+    }
+
+    th {
+        background: #fff5f5;
+        color: var(--primary);
+        font-size: 13px;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .action-group {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .small-btn {
+        min-height: 32px;
+        padding: 0 10px;
+        font-size: 12px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 35px 15px;
+        color: var(--muted);
+    }
+
+    .empty-state .icon {
+        font-size: 35px;
+        margin-bottom: 8px;
+    }
+
+    .bill-area {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 25px;
+        align-items: start;
+    }
+
+    .customer-box {
+        background: #fafafa;
+        border: 1px solid var(--border);
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .customer-box h3 {
+        margin-bottom: 12px;
+        color: var(--primary);
+    }
+
+    .customer-box .field {
+        margin-bottom: 12px;
+    }
+
+    .totals {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 8px 0;
+        color: #4b5563;
+    }
+
+    .total-row.discount {
+        color: var(--success);
+    }
+
+    .total-row.grand {
+        border-top: 2px solid var(--text);
+        margin-top: 8px;
+        padding-top: 14px;
+        color: var(--text);
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .discount-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 8px 0;
+    }
+
+    .discount-row input {
+        width: 90px;
+        height: 34px;
+    }
+
+    .bill-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        margin-top: 15px;
+    }
+
+    .status {
+        min-height: 20px;
+        margin-top: 12px;
+        text-align: center;
+        font-size: 13px;
+        color: var(--success);
+    }
+
+    .footer {
+        text-align: center;
+        padding: 18px;
+        background: #fafafa;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    @media (max-width: 800px) {
+        .form-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-grid button {
+            width: 100%;
+        }
+
+        .bill-area {
+            grid-template-columns: 1fr;
+        }
+
+        .order-badge {
+            position: static;
+            display: inline-block;
+            margin-top: 15px;
+        }
+    }
+
+    @media (max-width: 520px) {
+        body {
+            padding: 10px;
+        }
+
+        .content {
+            padding: 15px;
+        }
+
+        .main-heading {
+            padding: 22px 18px;
+        }
+
+        .section {
+            padding: 15px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .bill-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media print {
+        body {
+            background: white;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            box-shadow: none;
+        }
+
+        .no-print,
+        .order-badge,
+        .footer {
+            display: none !important;
+        }
+
+        .main-heading {
+            background: white;
+            color: black;
+            border-bottom: 2px solid #222;
+        }
+
+        .content {
+            padding: 10px;
+        }
+
+        .section {
+            border: none;
+            padding: 5px;
+        }
+
+        .customer-box {
+            background: white;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <header class="main-heading">
+        <h1>🍽️ Foodie</h1>
+        <p>Food Order & Professional Bill Generator</p>
+        <div class="order-badge">
+            Order ID: <strong id="orderId"></strong>
+        </div>
+    </header>
+
+    <main class="content">
+
+        <section class="section no-print">
+            <div class="section-title">
+                <h2>Place Your Order</h2>
+                <span>Select food and quantity</span>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="foodName">Food Name</label>
+                    <select id="foodName">
+                        <option value="">Select Food</option>
+                        <option value="Momos">Momos</option>
+                        <option value="Chowmin">Chowmin</option>
+                        <option value="Chicken Chilli">Chicken Chilli</option>
+                        <option value="Shahi Paneer">Shahi Paneer</option>
+                        <option value="Egg Roll">Egg Roll</option>
+                        <option value="Biryani">Biryani</option>
+                        <option value="Shahi Plate">Shahi Plate</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" min="1" max="50" placeholder="e.g. 2">
+                </div>
+
+                <button id="addItem">+ Add Item</button>
+            </div>
+
+            <div id="status" class="status"></div>
+        </section>
+
+        <section class="section">
+            <div class="section-title">
+                <h2>Order Summary</h2>
+                <span id="itemCount">0 items</span>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Food Name</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Amount</th>
+                            <th class="no-print">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="orderList"></tbody>
+                </table>
+
+                <div id="emptyState" class="empty-state">
+                    <div class="icon">🛒</div>
+                    <p>Your order is empty.</p>
+                    <small>Add food items to generate your bill.</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-title">
+                <h2>Billing Details</h2>
+                <span>Review before printing</span>
+            </div>
+
+            <div class="bill-area">
+
+                <div class="customer-box">
+                    <h3>Customer Information</h3>
+
+                    <div class="field">
+                        <label for="customerName">Customer Name</label>
+                        <input type="text" id="customerName" placeholder="Enter customer name">
+                    </div>
+
+                    <div class="field">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod">
+                            <option>Cash</option>
+                            <option>UPI</option>
+                            <option>Card</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="taxRate">Tax / GST (%)</label>
+                        <input type="number" id="taxRate" min="0" max="100" value="5">
+                    </div>
+                </div>
+
+                <div class="totals">
+                    <div class="total-row">
+                        <span>Subtotal</span>
+                        <strong id="totalAmount">₹0.00</strong>
+                    </div>
+
+                    <div class="discount-row no-print">
+                        <label for="discountInput">Discount (%)</label>
+                        <input type="number" id="discountInput" min="0" max="100" value="0">
+                    </div>
+
+                    <div class="total-row discount">
+                        <span>Discount</span>
+                        <strong id="discountedAmount">- ₹0.00</strong>
+                    </div>
+
+                    <div class="total-row">
+                        <span>Tax / GST</span>
+                        <strong id="taxAmount">₹0.00</strong>
+                    </div>
+
+                    <div class="total-row grand">
+                        <span>Final Amount</span>
+                        <strong id="finalAmount">₹0.00</strong>
+                    </div>
+
+                    <div class="bill-actions no-print">
+                        <button class="success-btn" onclick="printBill()">🖨️ Print Bill</button>
+                        <button class="secondary-btn" onclick="saveOrder()">💾 Save Order</button>
+                        <button class="danger-btn" onclick="resetOrder()">↻ Reset Order</button>
+                        <button onclick="loadOrder()">📂 Load Saved</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        FoodiePOS • Built with HTML, CSS & JavaScript
+    </footer>
+</div>
+
+<script>
+    const priceOfFood = {
+        "Momos": 80,
+        "Chowmin": 70,
+        "Chicken Chilli": 120,
+        "Shahi Paneer": 150,
+        "Egg Roll": 50,
+        "Biryani": 220,
+        "Shahi Plate": 1500
+    };
+
+    let orders = [];
+
+    const foodName = document.getElementById("foodName");
+    const quantity = document.getElementById("quantity");
+    const addItem = document.getElementById("addItem");
+    const orderList = document.getElementById("orderList");
+    const emptyState = document.getElementById("emptyState");
+    const itemCount = document.getElementById("itemCount");
+    const status = document.getElementById("status");
+
+    const customerName = document.getElementById("customerName");
+    const paymentMethod = document.getElementById("paymentMethod");
+    const taxRate = document.getElementById("taxRate");
+    const discountInput = document.getElementById("discountInput");
+
+    const totalAmount = document.getElementById("totalAmount");
+    const discountedAmount = document.getElementById("discountedAmount");
+    const taxAmount = document.getElementById("taxAmount");
+    const finalAmount = document.getElementById("finalAmount");
+
+    const orderIdElement = document.getElementById("orderId");
+
+    function generateOrderId() {
+        return "FD-" + Date.now().toString().slice(-6);
+    }
+
+    function formatCurrency(value) {
+        return "₹" + value.toFixed(2);
+    }
+
+    function showStatus(message) {
+        status.textContent = message;
+        setTimeout(() => {
+            status.textContent = "";
+        }, 2500);
+    }
+
+    addItem.addEventListener("click", addFoodItem);
+
+    quantity.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            addFoodItem();
+        }
+    });
+
+    function addFoodItem() {
+        const selectedFood = foodName.value;
+        const selectedQuantity = Number(quantity.value);
+
+        if (!selectedFood) {
+            showStatus("Please select a food item.");
+            foodName.focus();
+            return;
+        }
+
+        if (!Number.isInteger(selectedQuantity) || selectedQuantity <= 0) {
+            showStatus("Please enter a valid quantity.");
+            quantity.focus();
+            return;
+        }
+
+        const price = priceOfFood[selectedFood];
+
+        const existingItem = orders.find(order => order.food === selectedFood);
+
+        if (existingItem) {
+            existingItem.quantity += selectedQuantity;
+            existingItem.amount = existingItem.price * existingItem.quantity;
+            showStatus("Quantity updated successfully.");
+        } else {
+            orders.push({
+                food: selectedFood,
+                price: price,
+                quantity: selectedQuantity,
+                amount: price * selectedQuantity
+            });
+            showStatus("Item added to order.");
+        }
+
+        foodName.value = "";
+        quantity.value = "";
+        displayOrders();
+    }
+
+    function displayOrders() {
+        orderList.innerHTML = "";
+
+        if (orders.length === 0) {
+            emptyState.style.display = "block";
+        } else {
+            emptyState.style.display = "none";
+        }
+
+        orders.forEach(function(order, index) {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td><strong>${order.food}</strong></td>
+                <td>${formatCurrency(order.price)}</td>
+                <td>${order.quantity}</td>
+                <td><strong>${formatCurrency(order.amount)}</strong></td>
+                <td class="no-print">
+                    <div class="action-group">
+                        <button class="small-btn" onclick="changeQuantity(${index}, 1)">+</button>
+                        <button class="small-btn secondary-btn" onclick="changeQuantity(${index}, -1)">−</button>
+                        <button class="small-btn danger-btn" onclick="removeItem(${index})">Delete</button>
+                    </div>
+                </td>
+            `;
+
+            orderList.appendChild(row);
+        });
+
+        const totalItems = orders.reduce((sum, order) => sum + order.quantity, 0);
+        itemCount.textContent = `${totalItems} item${totalItems === 1 ? "" : "s"}`;
+
+        calculateBill();
+    }
+
+    function changeQuantity(index, change) {
+        orders[index].quantity += change;
+
+        if (orders[index].quantity <= 0) {
+            orders.splice(index, 1);
+        } else {
+            orders[index].amount =
+                orders[index].price * orders[index].quantity;
+        }
+
+        displayOrders();
+    }
+
+    function removeItem(index) {
+        orders.splice(index, 1);
+        displayOrders();
+        showStatus("Item removed.");
+    }
+
+    [discountInput, taxRate].forEach(input => {
+        input.addEventListener("input", calculateBill);
+    });
+
+    function calculateBill() {
+        const subtotal = orders.reduce(
+            (sum, order) => sum + order.amount, 0
+        );
+
+        let discountPercentage = Number(discountInput.value) || 0;
+        let taxPercentage = Number(taxRate.value) || 0;
+
+        discountPercentage = Math.min(Math.max(discountPercentage, 0), 100);
+        taxPercentage = Math.min(Math.max(taxPercentage, 0), 100);
+
+        discountInput.value = discountPercentage;
+        taxRate.value = taxPercentage;
+
+        const discount = subtotal * discountPercentage / 100;
+        const amountAfterDiscount = subtotal - discount;
+        const tax = amountAfterDiscount * taxPercentage / 100;
+        const final = amountAfterDiscount + tax;
+
+        totalAmount.textContent = formatCurrency(subtotal);
+        discountedAmount.textContent = "- " + formatCurrency(discount);
+        taxAmount.textContent = formatCurrency(tax);
+        finalAmount.textContent = formatCurrency(final);
+    }
+
+    function getOrderData() {
+        return {
+            orderId: orderIdElement.textContent,
+            customerName: customerName.value.trim(),
+            paymentMethod: paymentMethod.value,
+            taxRate: Number(taxRate.value) || 0,
+            discount: Number(discountInput.value) || 0,
+            orders: orders,
+            savedAt: new Date().toLocaleString()
+        };
+    }
+
+    function saveOrder() {
+        if (orders.length === 0) {
+            showStatus("Add at least one item before saving.");
+            return;
+        }
+
+        localStorage.setItem(
+            "foodiePOSOrder",
+            JSON.stringify(getOrderData())
+        );
+
+        showStatus("Order saved successfully in this browser.");
+    }
+
+    function loadOrder() {
+        const savedOrder = localStorage.getItem("foodiePOSOrder");
+
+        if (!savedOrder) {
+            showStatus("No saved order found.");
+            return;
+        }
+
+        const data = JSON.parse(savedOrder);
+
+        orders = data.orders || [];
+        customerName.value = data.customerName || "";
+        paymentMethod.value = data.paymentMethod || "Cash";
+        taxRate.value = data.taxRate ?? 5;
+        discountInput.value = data.discount ?? 0;
+
+        if (data.orderId) {
+            orderIdElement.textContent = data.orderId;
+        }
+
+        displayOrders();
+        showStatus("Saved order loaded.");
+    }
+
+    function resetOrder() {
+        const confirmed = confirm(
+            "Are you sure you want to reset the current order?"
+        );
+
+        if (!confirmed) return;
+
+        orders = [];
+        customerName.value = "";
+        paymentMethod.value = "Cash";
+        taxRate.value = 5;
+        discountInput.value = 0;
+        foodName.value = "";
+        quantity.value = "";
+
+        orderIdElement.textContent = generateOrderId();
+
+        displayOrders();
+        showStatus("Order has been reset.");
+    }
+
+    function printBill() {
+        if (orders.length === 0) {
+            showStatus("Add at least one item before printing.");
+            return;
+        }
+
+        window.print();
+    }
+
+    orderIdElement.textContent = generateOrderId();
+    displayOrders();
+</script>
+
+</body>
+</html>
